@@ -1,4 +1,4 @@
-package com.ghenriqf.desafio_backend_picpay_simplificado.domain.transferencia;
+package com.ghenriqf.desafio_backend_picpay_simplificado.domain.transacao;
 
 import com.ghenriqf.desafio_backend_picpay_simplificado.domain.usuario.Usuario;
 import jakarta.persistence.*;
