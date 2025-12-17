@@ -1,11 +1,8 @@
 package com.ghenriqf.desafio_backend_picpay_simplificado.domain.transferencia;
 
+import com.ghenriqf.desafio_backend_picpay_simplificado.domain.usuario.Usuario;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
-import org.apache.catalina.User;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -15,6 +12,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @AllArgsConstructor
+@NoArgsConstructor
 @EqualsAndHashCode(of = "id")
 public class Transferencia {
     @Id
@@ -25,11 +23,11 @@ public class Transferencia {
 
     @ManyToOne
     @JoinColumn(name = "remetente_id")
-    private User remetente;
+    private Usuario remetente;
 
     @ManyToOne
     @JoinColumn(name = "destinatario_id")
-    private User destinatario;
+    private Usuario destinatario;
 
     private LocalDateTime dataHora;
 }
