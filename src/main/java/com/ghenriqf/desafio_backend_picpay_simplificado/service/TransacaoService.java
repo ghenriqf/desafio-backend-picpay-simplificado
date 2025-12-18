@@ -17,19 +17,21 @@ import java.util.Map;
 @Service
 public class TransacaoService {
     private final TransacaoRepository transacaoRepository;
+    private final NotificacaoService notificacaoService;
     private final UsuarioService usuarioService;
     private final RestTemplate restTemplate;
 
     @Value("${authorize.service.url}")
     private String authorizeServiceUrl;
 
-    public TransacaoService(TransacaoRepository transacaoRepository, UsuarioService usuarioService, RestTemplate restTemplate) {
+    public TransacaoService(TransacaoRepository transacaoRepository, NotificacaoService notificacaoService, UsuarioService usuarioService, RestTemplate restTemplate) {
         this.transacaoRepository = transacaoRepository;
+        this.notificacaoService = notificacaoService;
         this.usuarioService = usuarioService;
         this.restTemplate = restTemplate;
     }
 
-    public void criarTransacao (TransacaoDTO transacaoDTO) throws Exception {
+    public Transacao criarTransacao (TransacaoDTO transacaoDTO) throws Exception {
         Usuario remetente = usuarioService.findUsuarioById(transacaoDTO.remetenteId());
         Usuario destinatario = usuarioService.findUsuarioById(transacaoDTO.destinatarioId());
 
@@ -53,6 +55,10 @@ public class TransacaoService {
         transacaoRepository.save(transacao);
         usuarioService.salvarUsuario(remetente);
         usuarioService.salvarUsuario(destinatario);
+        notificacaoService.enviarNotificacao(remetente,"Transação realizada com sucesso.");
+        notificacaoService.enviarNotificacao(destinatario,"Transação recebida com sucesso.");
+
+        return transacao;
     }
 
     public boolean autorizacaoTransacao (Usuario usuario, BigDecimal valor) {
