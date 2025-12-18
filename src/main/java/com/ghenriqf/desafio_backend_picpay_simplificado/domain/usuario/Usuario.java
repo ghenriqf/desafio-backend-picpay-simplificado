@@ -1,5 +1,6 @@
 package com.ghenriqf.desafio_backend_picpay_simplificado.domain.usuario;
 
+import com.ghenriqf.desafio_backend_picpay_simplificado.dto.UsuarioDTO;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -17,9 +18,7 @@ public class Usuario {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String nome;
-
-    private String sobrenome;
+    private String nomeCompleto;
 
     @Column(unique = true)
     private String cpf;
@@ -32,4 +31,13 @@ public class Usuario {
     private BigDecimal saldo;
 
     private TipoDoUsuario tipo;
+
+    public Usuario(UsuarioDTO usuarioDTO) {
+        this.nomeCompleto = usuarioDTO.nomeCompleto();
+        this.cpf = usuarioDTO.cpf();
+        this.email = usuarioDTO.cpf();
+        this.saldo = usuarioDTO.saldo();
+        this.tipo = usuarioDTO.tipoDoUsuario();
+        this.senha = usuarioDTO.senha();
+    }
 }
