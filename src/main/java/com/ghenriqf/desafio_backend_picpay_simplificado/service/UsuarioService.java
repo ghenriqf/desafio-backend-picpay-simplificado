@@ -2,10 +2,13 @@ package com.ghenriqf.desafio_backend_picpay_simplificado.service;
 
 import com.ghenriqf.desafio_backend_picpay_simplificado.domain.usuario.TipoDoUsuario;
 import com.ghenriqf.desafio_backend_picpay_simplificado.domain.usuario.Usuario;
+import com.ghenriqf.desafio_backend_picpay_simplificado.dto.UsuarioDTO;
 import com.ghenriqf.desafio_backend_picpay_simplificado.repository.UsuarioRepository;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Service
 public class UsuarioService {
@@ -14,6 +17,12 @@ public class UsuarioService {
 
     public UsuarioService(UsuarioRepository usuarioRepository) {
         this.usuarioRepository = usuarioRepository;
+    }
+
+    public Usuario criarUsuario (UsuarioDTO usuarioDTO) {
+        Usuario novoUsuario = new Usuario(usuarioDTO);
+        usuarioRepository.save(novoUsuario);
+        return novoUsuario;
     }
 
     public void validarTransacao(Usuario usuario, BigDecimal valorTransferencia) throws Exception {
@@ -33,5 +42,10 @@ public class UsuarioService {
 
     public void salvarUsuario(Usuario usuario) {
         usuarioRepository.save(usuario);
+    }
+
+    public List<Usuario> listarUsuarios() {
+        List<Usuario> usuarios = usuarioRepository.findAll();
+        return usuarios;
     }
 }
