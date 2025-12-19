@@ -2,6 +2,7 @@ package com.ghenriqf.desafio_backend_picpay_simplificado.service;
 
 import com.ghenriqf.desafio_backend_picpay_simplificado.domain.usuario.Usuario;
 import com.ghenriqf.desafio_backend_picpay_simplificado.dto.NotificacaoDTO;
+import com.ghenriqf.desafio_backend_picpay_simplificado.exceptions.ServicoExternoException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,7 +27,7 @@ public class NotificacaoService {
         ResponseEntity<String> notificacaoResponse = restTemplate.postForEntity(emailServiceUrl, notificacaoDTO, String.class);
 
         if (!(notificacaoResponse.getStatusCode() == HttpStatus.OK)) {
-            throw new Exception("Serviço de envio de email não ativo.");
+            throw new ServicoExternoException("Serviço de envio de email não ativo.");
         }
     }
 }

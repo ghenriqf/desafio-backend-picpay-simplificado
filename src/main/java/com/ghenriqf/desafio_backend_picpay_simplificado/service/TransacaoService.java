@@ -3,6 +3,7 @@ package com.ghenriqf.desafio_backend_picpay_simplificado.service;
 import com.ghenriqf.desafio_backend_picpay_simplificado.domain.transacao.Transacao;
 import com.ghenriqf.desafio_backend_picpay_simplificado.domain.usuario.Usuario;
 import com.ghenriqf.desafio_backend_picpay_simplificado.dto.TransacaoDTO;
+import com.ghenriqf.desafio_backend_picpay_simplificado.exceptions.AutorizacaoException;
 import com.ghenriqf.desafio_backend_picpay_simplificado.repository.TransacaoRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -40,7 +41,7 @@ public class TransacaoService {
         boolean isAutorizado = autorizacaoTransacao(remetente,transacaoDTO.valor());
 
         if (!isAutorizado) {
-            throw new Exception("Transação não autorizada.");
+            throw new AutorizacaoException("Transação não autorizada.");
         }
 
         Transacao transacao = new Transacao();
