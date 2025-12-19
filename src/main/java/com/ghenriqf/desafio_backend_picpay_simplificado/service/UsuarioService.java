@@ -2,10 +2,12 @@ package com.ghenriqf.desafio_backend_picpay_simplificado.service;
 
 import com.ghenriqf.desafio_backend_picpay_simplificado.domain.usuario.TipoDoUsuario;
 import com.ghenriqf.desafio_backend_picpay_simplificado.domain.usuario.Usuario;
-import com.ghenriqf.desafio_backend_picpay_simplificado.dto.UsuarioDTO;
+import com.ghenriqf.desafio_backend_picpay_simplificado.dto.UsuarioRequest;
+import com.ghenriqf.desafio_backend_picpay_simplificado.dto.UsuarioResponse;
 import com.ghenriqf.desafio_backend_picpay_simplificado.exceptions.AutorizacaoException;
 import com.ghenriqf.desafio_backend_picpay_simplificado.exceptions.SaldoInsuficienteException;
 import com.ghenriqf.desafio_backend_picpay_simplificado.exceptions.UsuarioNaoEncontradoException;
+import com.ghenriqf.desafio_backend_picpay_simplificado.mapper.UsuarioMapper;
 import com.ghenriqf.desafio_backend_picpay_simplificado.repository.UsuarioRepository;
 import org.springframework.stereotype.Service;
 
@@ -14,17 +16,18 @@ import java.util.List;
 
 @Service
 public class UsuarioService {
-
+    private final UsuarioMapper usuarioMapper;
     private final UsuarioRepository usuarioRepository;
 
-    public UsuarioService(UsuarioRepository usuarioRepository) {
+    public UsuarioService(UsuarioMapper usuarioMapper, UsuarioRepository usuarioRepository) {
+        this.usuarioMapper = usuarioMapper;
         this.usuarioRepository = usuarioRepository;
     }
 
-    public Usuario criarUsuario (UsuarioDTO usuarioDTO) {
-        Usuario novoUsuario = new Usuario(usuarioDTO);
+    public UsuarioResponse criarUsuario (UsuarioRequest dto) {
+        Usuario novoUsuario = usuarioMapper.toEntity(dto);
         usuarioRepository.save(novoUsuario);
-        return novoUsuario;
+        return usuarioMapper.toDTO(novoUsuario);
     }
 
     public void validarTransacao(Usuario usuario, BigDecimal valorTransferencia) throws Exception {
@@ -38,16 +41,16 @@ public class UsuarioService {
     }
 
     public Usuario findUsuarioById(Long id) throws Exception {
-        return usuarioRepository.findUsuarioById(id)
-                .orElseThrow(() -> new UsuarioNaoEncontradoException("Usuário não encontrado."));
+        Usuario usuario = usuarioRepository.findUsuarioById(id).orElseThrow(() -> new UsuarioNaoEncontradoException("Usuário não encontrado."));
+        return usuario;
     }
 
     public void salvarUsuario(Usuario usuario) {
         usuarioRepository.save(usuario);
     }
 
-    public List<Usuario> listarUsuarios() {
+    public List<UsuarioResponse> listarUsuarios() {
         List<Usuario> usuarios = usuarioRepository.findAll();
-        return usuarios;
+        return usuarios.stream().map(usuarioMapper::toDTO).toList();
     }
 }
