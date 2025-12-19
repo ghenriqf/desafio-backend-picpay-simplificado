@@ -4,7 +4,7 @@ import com.ghenriqf.desafio_backend_picpay_simplificado.domain.usuario.TipoDoUsu
 
 import java.math.BigDecimal;
 
-public record UsuarioDTO(
+public record UsuarioRequest(
         String nomeCompleto,
         String cpf,
         String email,
