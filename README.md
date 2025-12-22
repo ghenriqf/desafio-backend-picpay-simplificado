@@ -1,6 +1,6 @@
 # Desafio Back-end PicPay Simplificado
 
-## Descrição do Projetote projeto é uma implementação de uma API RESTful inspirada no desafio técnico do PicPay. O objetivo é simular uma plataforma de pagamentos simplificada, onde usuários podem se cadastrar, possuir saldo em carteira e realizar transferências de dinheiro entre si, respeitando regras de negócio específicas.
+Descrição do Projetote projeto é uma implementação de uma API RESTful inspirada no desafio técnico do PicPay. O objetivo é simular uma plataforma de pagamentos simplificada, onde usuários podem se cadastrar, possuir saldo em carteira e realizar transferências de dinheiro entre si, respeitando regras de negócio específicas.
 
 O sistema foi desenvolvido com foco em **código limpo**, **boas práticas**, **separação de responsabilidades** e **clareza para uma futura entrevista técnica**.
 
