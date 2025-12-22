@@ -2,8 +2,11 @@ package com.ghenriqf.desafio_backend_picpay_simplificado.service;
 
 import com.ghenriqf.desafio_backend_picpay_simplificado.domain.transacao.Transacao;
 import com.ghenriqf.desafio_backend_picpay_simplificado.domain.usuario.Usuario;
-import com.ghenriqf.desafio_backend_picpay_simplificado.dto.TransacaoDTO;
+import com.ghenriqf.desafio_backend_picpay_simplificado.dto.TransacaoRequest;
+import com.ghenriqf.desafio_backend_picpay_simplificado.dto.TransacaoResponse;
 import com.ghenriqf.desafio_backend_picpay_simplificado.exceptions.AutorizacaoException;
+import com.ghenriqf.desafio_backend_picpay_simplificado.mapper.TransacaoMapper;
+import com.ghenriqf.desafio_backend_picpay_simplificado.mapper.UsuarioMapper;
 import com.ghenriqf.desafio_backend_picpay_simplificado.repository.TransacaoRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -21,31 +24,33 @@ public class TransacaoService {
     private final NotificacaoService notificacaoService;
     private final UsuarioService usuarioService;
     private final RestTemplate restTemplate;
+    private final TransacaoMapper transacaoMapper;
 
     @Value("${authorize.service.url}")
     private String authorizeServiceUrl;
 
-    public TransacaoService(TransacaoRepository transacaoRepository, NotificacaoService notificacaoService, UsuarioService usuarioService, RestTemplate restTemplate) {
+    public TransacaoService(TransacaoRepository transacaoRepository, NotificacaoService notificacaoService, UsuarioService usuarioService, RestTemplate restTemplate, UsuarioMapper usuarioMapper, TransacaoMapper transacaoMapper) {
         this.transacaoRepository = transacaoRepository;
         this.notificacaoService = notificacaoService;
         this.usuarioService = usuarioService;
         this.restTemplate = restTemplate;
+        this.transacaoMapper = transacaoMapper;
     }
 
-    public Transacao criarTransacao (TransacaoDTO transacaoDTO) throws Exception {
-        Usuario remetente = usuarioService.findUsuarioById(transacaoDTO.remetenteId());
-        Usuario destinatario = usuarioService.findUsuarioById(transacaoDTO.destinatarioId());
+    public TransacaoResponse criarTransacao (TransacaoRequest transacaoRequest) throws Exception {
+        Usuario remetente = usuarioService.findUsuarioById(transacaoRequest.remetenteId());
+        Usuario destinatario = usuarioService.findUsuarioById(transacaoRequest.destinatarioId());
 
-        usuarioService.validarTransacao(remetente,transacaoDTO.valor());
+        usuarioService.validarTransacao(remetente, transacaoRequest.valor());
 
-        boolean isAutorizado = autorizacaoTransacao(remetente,transacaoDTO.valor());
+        boolean isAutorizado = autorizacaoTransacao(remetente, transacaoRequest.valor());
 
         if (!isAutorizado) {
             throw new AutorizacaoException("Transação não autorizada.");
         }
 
         Transacao transacao = new Transacao();
-        transacao.setValor(transacaoDTO.valor());
+        transacao.setValor(transacaoRequest.valor());
         transacao.setRemetente(remetente);
         transacao.setDestinatario(destinatario);
         transacao.setDataHora(LocalDateTime.now());
@@ -59,7 +64,7 @@ public class TransacaoService {
         notificacaoService.enviarNotificacao(remetente,"Transação realizada com sucesso.");
         notificacaoService.enviarNotificacao(destinatario,"Transação recebida com sucesso.");
 
-        return transacao;
+        return transacaoMapper.toDto(transacao);
     }
 
     public boolean autorizacaoTransacao (Usuario usuario, BigDecimal valor) {
