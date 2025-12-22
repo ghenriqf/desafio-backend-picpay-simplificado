@@ -1,150 +1,140 @@
-# Desafio Back-end PicPay Simplificado
+# Desafio PicPay Simplificado
 
-Descrição do Projetote projeto é uma implementação de uma API RESTful inspirada no desafio técnico do PicPay. O objetivo é simular uma plataforma de pagamentos simplificada, onde usuários podem se cadastrar, possuir saldo em carteira e realizar transferências de dinheiro entre si, respeitando regras de negócio específicas.
-
-O sistema foi desenvolvido com foco em **código limpo**, **boas práticas**, **separação de responsabilidades** e **clareza para uma futura entrevista técnica**.
+Bem-vindo ao repositório de resolução do **Desafio PicPay Simplificado**. Esta aplicação é uma API REST que simula um sistema de pagamentos onde usuários podem realizar transferências entre si e para lojistas.
 
 ---
 
-## ## Tecnologias Utilizadas 17
+## Sobre o desafio
 
-* Spring Boot
-* Spring Web
-* Spring Data JPA
-* Hibernate
-* Lombok
-* RestTemplate
-* H2 / Banco relacional (configurável)
+O objetivo é implementar uma plataforma de pagamentos com as seguintes regras de negócio:
 
----
-
-## E## Estrutura do Projetoeto segue uma organização em camadas:
-
-* **controller** → Camada responsável pelos endpoints REST
-* **service** → Regras de negócio e orquestração
-* **domain** → Entidades JPA e enums de domínio
-* **dto** → Objetos de entrada (Request) e saída (Response)
-* **repository** → Acesso ao banco de dados
-* **mapper** → Conversão entre entidades e DTOs
-* **exceptions** → Exceções customizadas e handler global
-
---rio
-O sist## Tipos de Usuáriode usuários:
-
-* **COMUM**
-
-  * Pode enviar e receber transferências
-* **LOJISTA**
-
-  * Pode apenas receber transferências
-
-Essa regra é validada durante a criação da transação.
+* Existência de dois tipos de usuários: **Comuns** e **Lojistas**.
+* Usuários **Comuns** podem enviar e receber dinheiro.
+* **Lojistas** apenas recebem transferências, não podem enviar dinheiro.
+* Antes de cada transferência, um serviço autorizador externo deve ser consultado.
+* Após a transferência, uma notificação deve ser enviada aos envolvidos através de um serviço de terceiros.
+* A operação deve ser **transacional**, garantindo a integridade do saldo em caso de falhas.
 
 ---
 
-## Regras de uem: nome com## Regras de Negócio Implementadaspo
+## Endpoints da API
 
-* CPF e e-mail são únicos no sistema
-* Apenas usuários do tipo **COMUM** podem realizar transferências
-* O usuário deve possuir saldo suficiente para transferir
-* A transferência é validada por um **serviço autorizador externo**
-* A transação é registrada com data e hora
-* O saldo do remetente é debitado e o do destinatário é creditado
-* Após a transação, ambos recebem uma notificação
-* Exceções são tratadas de forma centralizada
+### 1. Cadastro de Usuários: `POST /usuarios`
 
----
+Cria um novo usuário (Comum ou Lojista) no sistema.
 
-## Integrações Externas
-
-### Serviço Autorizador:
-
-```
-GET https://util.devi.tools/api/v2/authorize
-```
-
-* A transação só é concluída se o retorno for autorizado
-
-### Serviço de Notificação
-
-* Endpoint mock utilizado:
-
-  ```
-  POST https://util.devi.tools/api/v1/notify
-  ```
-* Em caso de indisponibilidade, uma exceção é lançada
-
----
-
-## Endpoints Disponíveis
-
-### Criar Usuário
-
-**POST /usuarios**
-
-Exem "nomeCompleto": "João da 2345678900",
-"email": "[joao@email.com](mailto:joao@email.com)",
-"senha": "123456",
-"saldo": 1000,
-"tipo": "COMUM"
-}
-
-````
-
----
-
-### Listar Usuários
-**GET /usuarios**
-
----
-
-### Criar Transação
-**POST /transacao**
-
-Exemplo de request:
-```0,
-  "remetenteId": 1,
-  "destinatarioId": 2ponse:
 ```json
 {
-  "id": 1,
-  "valor": 100.0,
-  "remetente": { /* dados do usuário */ },
-  "destinatario": { /* dados do usuário */ },
-  "dataHora": "2025-01-01T10:00:00"
+  "nomeCompleto": "João Silva",
+  "cpf": "12345678900",
+  "email": "joao@exemplo.com",
+  "senha": "password123",
+  "saldo": 500.00,
+  "tipo": "COMUM"
 }
-````
+
+```
+
+* **Regras**: CPF e Email devem ser únicos.
+
+### 2. Listar Usuários: `GET /usuarios`
+
+Retorna a lista de todos os usuários cadastrados.
+
+### 3. Realizar Transferência: `POST /transacao`
+
+Efetua o envio de dinheiro entre carteiras.
+
+```json
+{
+  "valor": 100.0,
+  "remetenteId": 1,
+  "destinatarioId": 2
+}
+
+```
+
+* **Respostas**:
+* `200 OK`: Transação realizada com sucesso.
+* `403 Forbidden`: Tentativa de envio por Lojista ou falha na autorização externa.
+* `422 Unprocessable Entity`: Saldo insuficiente.
+* `404 Not Found`: Usuário remetente ou destinatário não encontrado.
+
+
 
 ---
 
-## Tratamento de Erros
+## Boas Práticas Adotadas
 
-O projeto possui um **GlobalExceptionHandler** que padroniza as respostas de erro.
+### 1. Tratamento de Exceções Centralizado
 
-Exceções tratadas:
+A aplicação utiliza um `GlobalExceptionHandler` com `@RestControllerAdvice`. Isso garante que erros como saldo insuficiente ou violação de integridade de dados retornem status HTTP semânticos e mensagens claras.
 
-* Usuário não encontradonte (422)
-* Transação não autorizada (403)
-* Serviço externo indisponível (503)
-* Violação de integridade (usuário já cadastrado) (400)
+### 2. Desacoplamento com DTOs e Mappers
 
-Todas retornam uma resposta estruturada com mensagem, status e timestamp.
+O uso de **Data Transfer Objects (DTOs)** e Mappers evita a exposição direta das entidades do banco de dados na camada de controle, facilitando a manutenção e evolução da API.
+
+### 3. Persistência e Integridade
+
+* Uso do **Spring Data JPA** para abstração da camada de dados.
+* Configuração de `@Column(unique = true)` para garantir unicidade de CPF e Email.
+* Lógica de transação manual (save/update) para garantir que o dinheiro só saia de uma conta se entrar na outra.
 
 ---
 
-## Como Executar o Projeto
+## Tecnologias Utilizadas
 
-1. Clone o repositório
-2. Configure o `application.properties` com as URLs dos serviços externos
-3. Execute a aplicação:
+* **Linguagem**: Java 17
+* **Framework**: Spring Boot 3
+* **Banco de Dados**: H2 (Em memória) / MySQL (Configurável)
+* **Persistência**: Spring Data JPA / Hibernate
+* **Produtividade**: Lombok
+* **Comunicação**: RestTemplate para chamadas de serviços externos (Mock API)
 
-   ```bash
-   ./mvnw spring-boot:run
-   ```
-4. A API estará disponível em:
+---
 
-   ```
-   http://localhost:8080
-   ```
+## Como Executar
+
+### Requisitos
+
+* **JDK 17** ou superior.
+* **Maven** instalado.
+
+### Instruções
+
+1. Clone este repositório:
+
+```bash
+git clone https://github.com/ghenriqf/desafio-backend-picpay-simplificado.git
+
+```
+
+2. Acesse o diretório do projeto:
+
+```bash
+cd desafio-backend-picpay-simplificado
+
+```
+
+3. Configure as URLs dos serviços externos no arquivo `src/main/resources/application.properties`:
+
+```properties
+authorize.service.url=https://util.devi.tools/api/v2/authorize
+email.service.url=https://util.devi.tools/api/v1/notify
+
+```
+
+4. Compile e execute a aplicação:
+
+```bash
+./mvnw spring-boot:run
+
+```
+
+5. Acesse a aplicação em `http://localhost:8080`.
+
+---
+
+Autor: **[ghenriqf](https://github.com/ghenriqf)**
 
 ---
