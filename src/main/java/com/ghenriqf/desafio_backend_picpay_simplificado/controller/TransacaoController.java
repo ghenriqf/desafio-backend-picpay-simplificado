@@ -1,7 +1,7 @@
 package com.ghenriqf.desafio_backend_picpay_simplificado.controller;
 
-import com.ghenriqf.desafio_backend_picpay_simplificado.domain.transacao.Transacao;
-import com.ghenriqf.desafio_backend_picpay_simplificado.dto.TransacaoDTO;
+import com.ghenriqf.desafio_backend_picpay_simplificado.dto.TransacaoRequest;
+import com.ghenriqf.desafio_backend_picpay_simplificado.dto.TransacaoResponse;
 import com.ghenriqf.desafio_backend_picpay_simplificado.service.TransacaoService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,8 +21,8 @@ public class TransacaoController {
     }
 
     @PostMapping
-    public ResponseEntity<Transacao> criarTransacao (@RequestBody TransacaoDTO transacaoDTO) throws Exception {
-        Transacao transacao = transacaoService.criarTransacao(transacaoDTO);
-        return new ResponseEntity<>(transacao, HttpStatus.OK);
+    public ResponseEntity<TransacaoResponse> criarTransacao (@RequestBody TransacaoRequest transacaoRequest) throws Exception {
+        TransacaoResponse response = transacaoService.criarTransacao(transacaoRequest);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }
