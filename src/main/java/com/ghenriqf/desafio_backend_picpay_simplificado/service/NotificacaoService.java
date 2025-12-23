@@ -20,7 +20,7 @@ public class NotificacaoService {
         this.restTemplate = restTemplate;
     }
 
-    public void enviarNotificacao (Usuario usuario, String mensagem) throws Exception {
+    public void enviarNotificacao (Usuario usuario, String mensagem) {
         String email = usuario.getEmail();
         NotificacaoDTO notificacaoDTO = new NotificacaoDTO(email,mensagem);
 

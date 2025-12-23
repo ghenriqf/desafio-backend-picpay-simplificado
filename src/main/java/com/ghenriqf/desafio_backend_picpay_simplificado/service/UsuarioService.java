@@ -30,7 +30,7 @@ public class UsuarioService {
         return usuarioMapper.toDTO(novoUsuario);
     }
 
-    public void validarTransacao(Usuario usuario, BigDecimal valorTransferencia) throws Exception {
+    public void validarTransacao(Usuario usuario, BigDecimal valorTransferencia) {
         if (usuario.getTipo() == TipoDoUsuario.LOJISTA) {
             throw new AutorizacaoException("Usuário do tipo lojista não é autorizado para realizar transação.");
         }
@@ -40,7 +40,7 @@ public class UsuarioService {
         }
     }
 
-    public Usuario findUsuarioById(Long id) throws Exception {
+    public Usuario findUsuarioById(Long id) {
         Usuario usuario = usuarioRepository.findUsuarioById(id).orElseThrow(() -> new UsuarioNaoEncontradoException("Usuário não encontrado."));
         return usuario;
     }
