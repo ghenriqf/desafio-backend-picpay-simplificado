@@ -8,6 +8,7 @@ import com.ghenriqf.desafio_backend_picpay_simplificado.exceptions.AutorizacaoEx
 import com.ghenriqf.desafio_backend_picpay_simplificado.mapper.TransacaoMapper;
 import com.ghenriqf.desafio_backend_picpay_simplificado.mapper.UsuarioMapper;
 import com.ghenriqf.desafio_backend_picpay_simplificado.repository.TransacaoRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -37,7 +38,8 @@ public class TransacaoService {
         this.transacaoMapper = transacaoMapper;
     }
 
-    public TransacaoResponse criarTransacao (TransacaoRequest transacaoRequest) throws Exception {
+    @Transactional(rollbackOn = Exception.class)
+    public TransacaoResponse criarTransacao (TransacaoRequest transacaoRequest)  {
         Usuario remetente = usuarioService.findUsuarioById(transacaoRequest.remetenteId());
         Usuario destinatario = usuarioService.findUsuarioById(transacaoRequest.destinatarioId());
 
