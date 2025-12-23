@@ -13,7 +13,7 @@ O objetivo é implementar uma plataforma de pagamentos com as seguintes regras d
 * **Lojistas** apenas recebem transferências, não podem enviar dinheiro.
 * Antes de cada transferência, um serviço autorizador externo deve ser consultado.
 * Após a transferência, uma notificação deve ser enviada aos envolvidos através de um serviço de terceiros.
-  
+* A operação de transferência é transacional, garantindo que, em caso de qualquer inconsistência ou erro durante o processo, todas as alterações sejam revertidas e o saldo do remetente seja preservado.
 ---
 
 ## Endpoints da API
