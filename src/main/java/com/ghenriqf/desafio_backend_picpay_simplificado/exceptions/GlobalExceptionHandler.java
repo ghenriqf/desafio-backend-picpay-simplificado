@@ -1,5 +1,6 @@
 package com.ghenriqf.desafio_backend_picpay_simplificado.exceptions;
 
+import jakarta.validation.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -11,6 +12,13 @@ import java.time.LocalDateTime;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ExceptionResponse> handleConstraintViolation(ConstraintViolationException exception) {
+        ExceptionResponse exceptionResponse = new ExceptionResponse("Requisição inválida", HttpStatus.BAD_REQUEST.value(), LocalDateTime.now());
+
+        return ResponseEntity.status(exceptionResponse.getStatus()).body(exceptionResponse);
+    }
 
     @ExceptionHandler(UsuarioNaoEncontradoException.class)
     public ResponseEntity<ExceptionResponse> handleUsuarioNaoEncontrado(UsuarioNaoEncontradoException exception) {
