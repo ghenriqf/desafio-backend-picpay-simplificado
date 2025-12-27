@@ -10,32 +10,28 @@ import com.ghenriqf.desafio_backend_picpay_simplificado.mapper.UsuarioMapper;
 import com.ghenriqf.desafio_backend_picpay_simplificado.repository.TransacaoRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.Map;
 
 @Service
 public class TransacaoService {
     private final TransacaoRepository transacaoRepository;
     private final NotificacaoService notificacaoService;
     private final UsuarioService usuarioService;
-    private final RestTemplate restTemplate;
     private final TransacaoMapper transacaoMapper;
+    private final AutorizacaoService autorizacaoService;
 
     @Value("${authorize.service.url}")
     private String authorizeServiceUrl;
 
-    public TransacaoService(TransacaoRepository transacaoRepository, NotificacaoService notificacaoService, UsuarioService usuarioService, RestTemplate restTemplate, UsuarioMapper usuarioMapper, TransacaoMapper transacaoMapper) {
+    public TransacaoService(TransacaoRepository transacaoRepository, NotificacaoService notificacaoService, UsuarioService usuarioService, RestTemplate restTemplate, UsuarioMapper usuarioMapper, TransacaoMapper transacaoMapper, AutorizacaoService autorizacaoService) {
         this.transacaoRepository = transacaoRepository;
         this.notificacaoService = notificacaoService;
         this.usuarioService = usuarioService;
-        this.restTemplate = restTemplate;
         this.transacaoMapper = transacaoMapper;
+        this.autorizacaoService = autorizacaoService;
     }
 
     @Transactional(rollbackOn = Exception.class)
@@ -45,7 +41,7 @@ public class TransacaoService {
 
         usuarioService.validarTransacao(remetente, transacaoRequest.valor());
 
-        boolean isAutorizado = autorizacaoTransacao(remetente, transacaoRequest.valor());
+        boolean isAutorizado = autorizacaoService.autorizacaoTransacao(remetente, transacaoRequest.valor());
 
         if (!isAutorizado) {
             throw new AutorizacaoException("Transação não autorizada.");
@@ -67,14 +63,5 @@ public class TransacaoService {
         notificacaoService.enviarNotificacao(destinatario,"Transação recebida com sucesso.");
 
         return transacaoMapper.toDto(transacao);
-    }
-
-    public boolean autorizacaoTransacao (Usuario usuario, BigDecimal valor) {
-        ResponseEntity<Map> autorizacaoResponse = restTemplate.getForEntity(authorizeServiceUrl, Map.class);
-
-        if (autorizacaoResponse.getStatusCode() == HttpStatus.OK) {
-            String message = (String) autorizacaoResponse.getBody().get("message");
-            return "autorizado".equalsIgnoreCase(message);
-        } else return false;
     }
 }
