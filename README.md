@@ -75,7 +75,7 @@ A API possui documentação interativa gerada com **Swagger (Springdoc OpenAPI)*
 Após subir a aplicação, acesse:
 
 * **Swagger UI**:
-   `http://localhost:8080/swagger-ui.html`
+  `http://localhost:8080/swagger-ui.html`
 
 * **OpenAPI JSON**:
   `http://localhost:8080/v3/api-docs`
@@ -104,6 +104,14 @@ As entidades não são expostas diretamente na camada de controle, facilitando m
 * Restrições de unicidade (`@Column(unique = true)`) para CPF e Email
 * Controle transacional garantindo consistência nas transferências
 
+### 4. Testes Unitários
+
+* Implementação de **testes unitários** para as regras de negócio
+* Uso do **JUnit 5** para escrita e execução dos testes
+* Uso do **Mockito** para mockar dependências externas (repositórios e serviços)
+
+Os testes garantem maior confiabilidade, facilitam refatorações e asseguram o correto funcionamento das regras de negócio.
+
 ---
 
 ## Tecnologias Utilizadas
@@ -115,6 +123,7 @@ As entidades não são expostas diretamente na camada de controle, facilitando m
 * **Documentação**: Swagger (Springdoc OpenAPI)
 * **Produtividade**: Lombok
 * **Comunicação Externa**: RestTemplate (Mock API)
+* **Testes**: JUnit 5 e Mockito
 * **Containerização**: Docker
 
 ---
