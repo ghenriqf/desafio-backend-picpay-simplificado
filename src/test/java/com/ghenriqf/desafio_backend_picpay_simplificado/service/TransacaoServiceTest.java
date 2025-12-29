@@ -9,20 +9,20 @@ import com.ghenriqf.desafio_backend_picpay_simplificado.mapper.TransacaoMapper;
 import com.ghenriqf.desafio_backend_picpay_simplificado.repository.TransacaoRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 class TransacaoServiceTest {
 
     @Mock
@@ -97,7 +97,7 @@ class TransacaoServiceTest {
 
         when(autorizacaoService.autorizacaoTransacao(any(), any())).thenReturn(false);
 
-        Exception exception = assertThrows(AutorizacaoException.class, () -> {
+        AutorizacaoException exception = assertThrows(AutorizacaoException.class, () -> {
             TransacaoRequest transacaoRequest = new TransacaoRequest(new BigDecimal(50),1L,2L);
             transacaoService.criarTransacao(transacaoRequest);
         });
