@@ -109,12 +109,6 @@ As entidades não são expostas diretamente na camada de controle, facilitando m
 * Implementação de **testes unitários** para as regras de negócio
 * Uso do **JUnit 5** para escrita e execução dos testes
 * Uso do **Mockito** para mockar dependências externas (repositórios e serviços)
-* Validação de cenários como:
-
-  * Transferência com saldo insuficiente
-  * Tentativa de transferência por usuário lojista
-  * Falha no serviço autorizador externo
-  * Transferência realizada com sucesso
 
 Os testes garantem maior confiabilidade, facilitam refatorações e asseguram o correto funcionamento das regras de negócio.
 
