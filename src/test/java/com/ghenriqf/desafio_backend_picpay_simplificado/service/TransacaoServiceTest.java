@@ -4,6 +4,7 @@ import com.ghenriqf.desafio_backend_picpay_simplificado.domain.transacao.Transac
 import com.ghenriqf.desafio_backend_picpay_simplificado.domain.usuario.TipoDoUsuario;
 import com.ghenriqf.desafio_backend_picpay_simplificado.domain.usuario.Usuario;
 import com.ghenriqf.desafio_backend_picpay_simplificado.dto.TransacaoRequest;
+import com.ghenriqf.desafio_backend_picpay_simplificado.exceptions.AutorizacaoException;
 import com.ghenriqf.desafio_backend_picpay_simplificado.mapper.TransacaoMapper;
 import com.ghenriqf.desafio_backend_picpay_simplificado.repository.TransacaoRepository;
 import org.junit.jupiter.api.AfterEach;
@@ -83,5 +84,24 @@ class TransacaoServiceTest {
         assertEquals(new BigDecimal("100"), destinatario.getSaldo());
 
         verify(usuarioService, times(2)).salvarUsuario(any(Usuario.class));
+    }
+
+    @Test
+    void criarTransacao_quandoTransacaoNaoAutorizada_deveLancarExcecao() {
+        Usuario remetente = new Usuario(1L, "Remetente", "1234567890", "remetente@email.com","12345", new BigDecimal(100), TipoDoUsuario.COMUM);
+
+        Usuario destinatario = new Usuario(2L,"Destinatario", "0987654321", "destinatario@email.com","54321", new BigDecimal(50), TipoDoUsuario.COMUM);
+
+        when(usuarioService.findUsuarioById(1L)).thenReturn(remetente);
+        when(usuarioService.findUsuarioById(2L)).thenReturn(destinatario);
+
+        when(autorizacaoService.autorizacaoTransacao(any(), any())).thenReturn(false);
+
+        Exception exception = assertThrows(AutorizacaoException.class, () -> {
+            TransacaoRequest transacaoRequest = new TransacaoRequest(new BigDecimal(50),1L,2L);
+            transacaoService.criarTransacao(transacaoRequest);
+        });
+
+        assertEquals("Transação não autorizada.", exception.getMessage());
     }
 }
